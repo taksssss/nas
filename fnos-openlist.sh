@@ -23,13 +23,16 @@ BIN_PATH="$BIN_DIR/$BIN_NAME"
 TMP_TAR="$BIN_DIR/openlist-latest.tar.gz"
 DATA_DIR="/vol1/@appdata/alist3"
 
+# 为管道执行交互，read 从 /dev/tty 读取
+INPUT_DEV="/dev/tty"
+
 # ===============================
 # 用户选择 GitHub 下载方式
 # ===============================
 echo "请选择 GitHub 下载方式："
 echo "1) 官方直连"
 echo "2) gh-proxy.com 镜像加速"
-read -p "输入选项 [1-2]（默认 1）： " choice
+read -p "输入选项 [1-2]（默认 1）： " choice < $INPUT_DEV
 
 case "$choice" in
     2)
@@ -52,7 +55,7 @@ UNAME_ARCH=$(uname -m)
 
 # 默认非 lite
 LITE=false
-read -p "是否下载 lite 版本？[y/N] (默认 N): " lite_choice
+read -p "是否下载 lite 版本？[y/N] (默认 N): " lite_choice < $INPUT_DEV
 [[ "$lite_choice" =~ ^[Yy]$ ]] && LITE=true
 
 case "$UNAME_OUT" in
@@ -105,13 +108,15 @@ fi
 echo "最新版本：$LATEST_VERSION"
 
 # ===============================
-# 判断是否更新
+# 判断是否更新或重启
 # ===============================
 if [ "$LOCAL_VERSION" = "$LATEST_VERSION" ]; then
-    echo "✅ 已是最新版本，无需更新"
-    exit 0
+    echo "✅ 已是最新版本"
+    read -p "是否重启 alist 服务？[y/N] (默认 N): " restart_choice < $INPUT_DEV
+    [[ "$restart_choice" =~ ^[Yy]$ ]] && RESTART=true || RESTART=false
 else
     echo "⬆️ 发现新版本：$LATEST_VERSION，开始升级..."
+    RESTART=true
 fi
 
 # ===============================
