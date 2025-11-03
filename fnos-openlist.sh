@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# @file fnos_openlist.sh
+# @file fnos-openlist.sh
 # @brief 飞牛OS OpenList 管理脚本
 #
 # 该脚本提供 OpenList 的安装、升级、管理和信息查看功能，
