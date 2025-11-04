@@ -196,7 +196,8 @@ if [ "$RESTART" = true ]; then
         echo "没有检测到旧 alist 进程"
     fi
 
-    echo "⚠️ 请在管理页面手动启动 alist 服务..."
+    echo "启动 alist 服务..."
+    sudo -u alist3 nohup "$BIN_PATH" server --data "$DATA_DIR" >/dev/null 2>&1 &
 fi
 
 echo "✅ 升级完成！当前版本：$LATEST_VERSION"
