@@ -97,9 +97,13 @@ else
     for d in /vol*; do
         [ -x "$d/@appcenter/alist3/bin/alist" ] && { BIN_PATH="$d/@appcenter/alist3/bin/alist"; break; }
     done
-    
-    [ -n "$BIN_PATH" ] || { echo "❌ 未找到 alist 可执行文件"; exit 1; }
-    echo "找到 alist 可执行文件：$BIN_PATH"
+    if [ -n "$BIN_PATH" ]; then
+        BIN_DIR=$(dirname "$BIN_PATH")
+        echo "找到 alist 可执行文件：$BIN_PATH"
+    else
+        echo "❌ 未找到 alist 可执行文件，请确认安装路径"
+        exit 1
+    fi
 fi
 
 # ===============================
