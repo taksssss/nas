@@ -141,39 +141,39 @@ if [ "$LOCAL_VERSION" = "$LATEST_VERSION" ]; then
 else
     echo "⬆️ 发现新版本：$LATEST_VERSION，开始升级..."
     RESTART=true
+
+    # ===============================
+    # 构建下载包名
+    # ===============================
+    PACKAGE_NAME="openlist-${PLATFORM}-${ARCH}.tar.gz"
+    $LITE && PACKAGE_NAME="openlist-${PLATFORM}-${ARCH}-lite.tar.gz"
+    DOWNLOAD_URL="$GITHUB_RELEASE/v$LATEST_VERSION/$PACKAGE_NAME"
+
+    # ===============================
+    # 下载最新版本
+    # ===============================
+    TMP_TAR="$BIN_DIR/$TMP_TAR"
+    echo "下载 $DOWNLOAD_URL ..."
+    curl -L -o "$TMP_TAR" "$DOWNLOAD_URL"
+    if [ $? -ne 0 ]; then
+        echo "❌ 下载失败"
+        exit 1
+    fi
+
+    # ===============================
+    # 解压覆盖
+    # ===============================
+    echo "解压并覆盖旧版本..."
+    tar -xzf "$TMP_TAR" -C "$BIN_DIR"
+    if [ $? -ne 0 ]; then
+        echo "❌ 解压失败"
+        exit 1
+    fi
+
+    mv -f "$BIN_DIR/openlist" "$BIN_PATH"
+    chmod +x "$BIN_PATH"
+    rm "$TMP_TAR"
 fi
-
-# ===============================
-# 构建下载包名
-# ===============================
-PACKAGE_NAME="openlist-${PLATFORM}-${ARCH}.tar.gz"
-$LITE && PACKAGE_NAME="openlist-${PLATFORM}-${ARCH}-lite.tar.gz"
-DOWNLOAD_URL="$GITHUB_RELEASE/v$LATEST_VERSION/$PACKAGE_NAME"
-
-# ===============================
-# 下载最新版本
-# ===============================
-TMP_TAR="$BIN_DIR/$TMP_TAR"
-echo "下载 $DOWNLOAD_URL ..."
-curl -L -o "$TMP_TAR" "$DOWNLOAD_URL"
-if [ $? -ne 0 ]; then
-    echo "❌ 下载失败"
-    exit 1
-fi
-
-# ===============================
-# 解压覆盖
-# ===============================
-echo "解压并覆盖旧版本..."
-tar -xzf "$TMP_TAR" -C "$BIN_DIR"
-if [ $? -ne 0 ]; then
-    echo "❌ 解压失败"
-    exit 1
-fi
-
-mv -f "$BIN_DIR/openlist" "$BIN_PATH"
-chmod +x "$BIN_PATH"
-rm "$TMP_TAR"
 
 # ===============================
 # 杀掉旧进程并启动新进程（尝试 sudo）
