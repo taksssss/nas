@@ -175,24 +175,24 @@ else
     rm "$TMP_TAR"
 fi
 
-# ===============================
-# 杀掉旧进程并启动新进程（尝试 sudo）
-# ===============================
-PIDS=$(pgrep -f "$BIN_PATH server")
-if [ -n "$PIDS" ]; then
-    echo "尝试停止旧 alist 进程..."
-    sudo kill $PIDS 2>/dev/null
-    if [ $? -ne 0 ]; then
-        echo "⚠️ 无法杀掉旧进程，请检查权限"
-    else
-        sleep 2
-        echo "旧进程已停止"
-    fi
-else
-    echo "没有检测到旧 alist 进程"
-fi
-
 if [ "$RESTART" = true ]; then
+    # ===============================
+    # 杀掉旧进程并启动新进程（尝试 sudo）
+    # ===============================
+    PIDS=$(pgrep -f "$BIN_PATH server")
+    if [ -n "$PIDS" ]; then
+        echo "尝试停止旧 alist 进程..."
+        sudo kill $PIDS 2>/dev/null
+        if [ $? -ne 0 ]; then
+            echo "⚠️ 无法杀掉旧进程，请检查权限"
+        else
+            sleep 2
+            echo "旧进程已停止"
+        fi
+    else
+        echo "没有检测到旧 alist 进程"
+    fi
+
     echo "启动 alist 服务..."
     sudo nohup "$BIN_PATH" server --data "$DATA_DIR" >/dev/null 2>&1 &
 fi
