@@ -93,7 +93,7 @@ if [ -n "$EXISTING_PROC" ]; then
     echo "检测到运行中的 alist：$BIN_PATH"
 else
     # 没有运行中的进程，则查找 @appcenter 下的 alist 可执行文件
-    BIN_PATH=$(find / -type f -path "*/@appcenter/alist3/bin/alist" 2>/dev/null | head -n1)
+    BIN_PATH=$(find /vol* -type f -path "*/@appcenter/alist3/bin/alist" 2>/dev/null | head -n1)
     if [ -n "$BIN_PATH" ]; then
         BIN_DIR=$(dirname "$BIN_PATH")
         echo "找到 alist 可执行文件：$BIN_PATH"
