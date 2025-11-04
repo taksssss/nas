@@ -17,11 +17,8 @@
 REPO_OWNER="OpenListTeam"
 REPO_NAME="OpenList"
 
-BIN_DIR="/vol1/@appcenter/alist3/bin"
 BIN_NAME="alist"
-BIN_PATH="$BIN_DIR/$BIN_NAME"
-TMP_TAR="$BIN_DIR/openlist-latest.tar.gz"
-DATA_DIR="/vol1/@appdata/alist3"
+TMP_TAR="openlist-latest.tar.gz"
 
 # 为管道执行交互，read 从 /dev/tty 读取
 INPUT_DEV="/dev/tty"
@@ -86,6 +83,33 @@ esac
 echo "检测到平台：$PLATFORM，架构：$ARCH"
 
 # ===============================
+# 自动检测 alist 可执行文件路径
+# ===============================
+EXISTING_PROC=$(ps -ef | grep "[a]list server" | awk '{print $8}' | head -n1)
+
+if [ -n "$EXISTING_PROC" ]; then
+    BIN_PATH="$EXISTING_PROC"
+    BIN_DIR=$(dirname "$BIN_PATH")
+    echo "检测到运行中的 alist：$BIN_PATH"
+else
+    # 没有运行中的进程，则查找 @appcenter 下的 alist 可执行文件
+    BIN_PATH=$(find / -type f -path "*/@appcenter/alist3/bin/alist" 2>/dev/null | head -n1)
+    if [ -n "$BIN_PATH" ]; then
+        BIN_DIR=$(dirname "$BIN_PATH")
+        echo "找到 alist 可执行文件：$BIN_PATH"
+    else
+        echo "❌ 未找到 alist 可执行文件，请确认安装路径"
+        exit 1
+    fi
+fi
+
+# ===============================
+# 数据目录使用 BIN_DIR 的父目录
+# ===============================
+DATA_DIR=$(dirname "$BIN_DIR")
+echo "使用数据目录：$DATA_DIR"
+
+# ===============================
 # 获取本地版本
 # ===============================
 if [ -x "$BIN_PATH" ]; then
@@ -129,6 +153,7 @@ DOWNLOAD_URL="$GITHUB_RELEASE/v$LATEST_VERSION/$PACKAGE_NAME"
 # ===============================
 # 下载最新版本
 # ===============================
+TMP_TAR="$BIN_DIR/$TMP_TAR"
 echo "下载 $DOWNLOAD_URL ..."
 curl -L -o "$TMP_TAR" "$DOWNLOAD_URL"
 if [ $? -ne 0 ]; then
@@ -167,7 +192,9 @@ else
     echo "没有检测到旧 alist 进程"
 fi
 
-echo "启动 alist 服务..."
-sudo nohup "$BIN_PATH" server --data "$DATA_DIR" >/dev/null 2>&1 &
+if [ "$RESTART" = true ]; then
+    echo "启动 alist 服务..."
+    sudo nohup "$BIN_PATH" server --data "$DATA_DIR" >/dev/null 2>&1 &
+fi
 
 echo "✅ 升级完成！当前版本：$LATEST_VERSION"
