@@ -17,7 +17,7 @@
 REPO_OWNER="OpenListTeam"
 REPO_NAME="OpenList"
 
-BIN_NAME="alist"
+BIN_NAME="openlist"
 TMP_TAR="openlist-latest.tar.gz"
 
 # 为管道执行交互，read 从 /dev/tty 读取
@@ -83,25 +83,25 @@ esac
 echo "检测到平台：$PLATFORM，架构：$ARCH"
 
 # ===============================
-# 自动检测 alist 可执行文件路径
+# 自动检测 openlist 可执行文件路径
 # ===============================
-EXISTING_PROC=$(ps -ef | grep "[a]list server" | awk '{print $8}' | head -n1)
+EXISTING_PROC=$(ps -ef | grep "[o]penlist server" | awk '{print $8}' | head -n1)
 
 if [ -n "$EXISTING_PROC" ]; then
     BIN_PATH="$EXISTING_PROC"
     BIN_DIR=$(dirname "$BIN_PATH")
-    echo "检测到运行中的 alist：$BIN_PATH"
+    echo "检测到运行中的 openlist：$BIN_PATH"
 else
-    # 没有运行中的进程，则查找 @appcenter 下的 alist 可执行文件
+    # 没有运行中的进程，则查找 @appcenter 下的 openlist 可执行文件
     BIN_PATH=""
     for d in /vol*; do
-        [ -x "$d/@appcenter/alist3/bin/alist" ] && { BIN_PATH="$d/@appcenter/alist3/bin/alist"; break; }
+        [ -x "$d/@appcenter/OpenList/bin/openlist" ] && { BIN_PATH="$d/@appcenter/OpenList/bin/openlist"; break; }
     done
     if [ -n "$BIN_PATH" ]; then
         BIN_DIR=$(dirname "$BIN_PATH")
-        echo "找到 alist 可执行文件：$BIN_PATH"
+        echo "找到 openlist 可执行文件：$BIN_PATH"
     else
-        echo "❌ 未找到 alist 可执行文件，请确认安装路径"
+        echo "❌ 未找到 openlist 可执行文件，请确认安装路径"
         exit 1
     fi
 fi
@@ -119,7 +119,7 @@ if [ -x "$BIN_PATH" ]; then
     LOCAL_VERSION=$($BIN_PATH version 2>/dev/null | grep -E '^Version:' | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
     [ -z "$LOCAL_VERSION" ] && LOCAL_VERSION=$($BIN_PATH version 2>/dev/null | grep -E '^WebVersion:' | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
 else
-    echo "⚠️ 未找到 alist 可执行文件，将进行全新安装"
+    echo "⚠️ 未找到 openlist 可执行文件，将进行全新安装"
     LOCAL_VERSION="0.0.0"
 fi
 echo "本地版本：$LOCAL_VERSION"
@@ -139,7 +139,7 @@ echo "最新版本：$LATEST_VERSION"
 # ===============================
 if [ "$LOCAL_VERSION" = "$LATEST_VERSION" ]; then
     echo "✅ 已是最新版本"
-    read -p "是否重启 alist 服务？[y/N] (默认 N): " restart_choice < $INPUT_DEV
+    read -p "是否重启 openlist 服务？[y/N] (默认 N): " restart_choice < $INPUT_DEV
     [[ "$restart_choice" =~ ^[Yy]$ ]] && RESTART=true || RESTART=false
 else
     echo "⬆️ 发现新版本：$LATEST_VERSION，开始升级..."
@@ -184,7 +184,7 @@ if [ "$RESTART" = true ]; then
     # ===============================
     PIDS=$(pgrep -f "$BIN_PATH server")
     if [ -n "$PIDS" ]; then
-        echo "尝试停止旧 alist 进程..."
+        echo "尝试停止旧 openlist 进程..."
         sudo kill $PIDS 2>/dev/null
         if [ $? -ne 0 ]; then
             echo "⚠️ 无法杀掉旧进程，请检查权限"
@@ -193,10 +193,10 @@ if [ "$RESTART" = true ]; then
             echo "旧进程已停止"
         fi
     else
-        echo "没有检测到旧 alist 进程"
+        echo "没有检测到旧 openlist 进程"
     fi
 
-    echo "✅ 请在管理端重新启用 AList网盘"
+    echo "✅ 请在管理端重新启用 OpenList 网盘"
 fi
 
 echo "✅ 升级完成！当前版本：$LATEST_VERSION"
